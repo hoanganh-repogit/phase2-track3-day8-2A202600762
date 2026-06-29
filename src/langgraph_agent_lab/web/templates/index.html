@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangGraph Support Agent Dashboard</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Vanilla CSS stylesheet -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar: Scenario List -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fa-solid fa-diagram-project logo-icon"></i>
+                    <span>LangGraph Lab</span>
+                </div>
+            </div>
+
+            <div class="run-all-container">
+                <button id="run-all-btn" class="btn btn-primary btn-block">
+                    <i class="fa-solid fa-play"></i> Run All Scenarios
+                </button>
+                <button id="record-btn" class="btn btn-secondary btn-block" style="margin-top: 10px; background: rgba(255,255,255,0.08); border: 1px dashed rgba(255,255,255,0.15); color: var(--text-secondary);">
+                    <i class="fa-solid fa-video"></i> Record Run Video
+                </button>
+            </div>
+
+            <div class="scenarios-list-section">
+                <h3>Support Scenarios</h3>
+                <div id="scenarios-list" class="scenarios-list">
+                    <!-- Dynamic scenario items -->
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Dashboard Metrics -->
+            <section class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon success-glow"><i class="fa-solid fa-circle-check"></i></div>
+                    <div class="metric-info">
+                        <span class="metric-label">Success Rate</span>
+                        <h2 id="metric-success-rate">0%</h2>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon run-glow"><i class="fa-solid fa-rocket"></i></div>
+                    <div class="metric-info">
+                        <span class="metric-label">Progress</span>
+                        <h2 id="metric-progress">0 / 0</h2>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon info-glow"><i class="fa-solid fa-route"></i></div>
+                    <div class="metric-info">
+                        <span class="metric-label">Avg Nodes</span>
+                        <h2 id="metric-avg-nodes">0.0</h2>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon warning-glow"><i class="fa-solid fa-arrows-spin"></i></div>
+                    <div class="metric-info">
+                        <span class="metric-label">Retries / Interrupts</span>
+                        <h2 id="metric-retries-interrupts">0 / 0</h2>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Active Scenario Details -->
+            <section id="active-scenario-view" class="active-scenario-container">
+                <div class="panel-header">
+                    <div class="active-title">
+                        <span class="badge" id="active-scenario-id">S00</span>
+                        <h2 id="active-scenario-query">Select a scenario to start...</h2>
+                    </div>
+                </div>
+
+                <!-- Visual Graph Flow -->
+                <div class="graph-visualizer">
+                    <h3>Workflow Graph State</h3>
+                    <div class="flow-chart" id="graph-flow">
+                        <div class="node-wrapper">
+                            <div class="node" id="node-intake">Intake</div>
+                            <div class="node-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                        </div>
+                        <div class="node-wrapper">
+                            <div class="node" id="node-classify">Classify</div>
+                            <div class="node-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                        </div>
+                        <!-- Branching Nodes -->
+                        <div class="branch-container">
+                            <div class="node-wrapper branch-node">
+                                <div class="node" id="node-clarify">Clarification</div>
+                                <div class="node-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                            </div>
+                            <div class="node-wrapper branch-node">
+                                <div class="node" id="node-tool">Tool Exec</div>
+                                <div class="node-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                            </div>
+                            <div class="node-wrapper branch-node">
+                                <div class="node" id="node-evaluate">Evaluation</div>
+                                <div class="node-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                            </div>
+                            <div class="node-wrapper branch-node">
+                                <div class="node" id="node-approval">HITL Approval</div>
+                                <div class="node-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                            </div>
+                            <div class="node-wrapper branch-node">
+                                <div class="node" id="node-retry">Retry</div>
+                                <div class="node-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                            </div>
+                        </div>
+                        <div class="node-wrapper">
+                            <div class="node" id="node-answer">Answer</div>
+                            <div class="node-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                        </div>
+                        <div class="node-wrapper">
+                            <div class="node" id="node-dead_letter">Dead Letter</div>
+                            <div class="node-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                        </div>
+                        <div class="node-wrapper">
+                            <div class="node" id="node-finalize">Finalize</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lower Layout: Console Logs + State Inspector -->
+                <div class="details-grid">
+                    <!-- Real-Time Console Logs -->
+                    <div class="console-panel">
+                        <div class="panel-subheader">
+                            <i class="fa-solid fa-terminal"></i> Live Execution Log
+                        </div>
+                        <div class="console-output" id="console-log">
+                            <div class="system-message">System ready. Select a scenario or click "Run All Scenarios" to start.</div>
+                        </div>
+                    </div>
+
+                    <!-- State Inspector -->
+                    <div class="state-panel">
+                        <div class="panel-subheader">
+                            <i class="fa-solid fa-database"></i> Agent State Inspector
+                        </div>
+                        <pre class="state-json"><code id="state-json-viewer">{}</code></pre>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Human-In-The-Loop Interactive Modal -->
+    <div id="hitl-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <i class="fa-solid fa-shield-halved modal-icon"></i>
+                <h2>Approval Required</h2>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description">This action requires explicit human verification before execution.</p>
+                <div class="action-card">
+                    <span class="action-label">Proposed Action:</span>
+                    <p id="hitl-action-text">No action details provided.</p>
+                </div>
+                <div class="input-group">
+                    <label for="hitl-comment">Reviewer Comments (Optional):</label>
+                    <textarea id="hitl-comment" placeholder="Add details or reason for approval/rejection..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="hitl-reject-btn" class="btn btn-danger">
+                    <i class="fa-solid fa-xmark"></i> Reject
+                </button>
+                <button id="hitl-approve-btn" class="btn btn-success">
+                    <i class="fa-solid fa-check"></i> Approve
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript scripts -->
+    <script src="/static/app.js"></script>
+</body>
+</html>

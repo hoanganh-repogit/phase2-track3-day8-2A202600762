@@ -37,5 +37,3 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
-# Hidden grading — do NOT distribute to students
-data/grading/
